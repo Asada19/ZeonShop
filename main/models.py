@@ -13,12 +13,12 @@ from ckeditor.fields import RichTextField
 
 
 class Slider(models.Model):
-    blank = models.TextField(blank=True, verbose_name='Поле для ссылки')
+    blank = models.URLField(blank=True ,null=True, verbose_name='Поле для ссылки')
 
 
-class Image(models.Model):
-    image = models.ImageField(upload_to='sliders', blank=True)
-    product = models.ForeignKey(Slider, on_delete=models.CASCADE, related_name='sliders')
+class SliderImage(models.Model):
+    image = models.ImageField(upload_to='sliders', blank=True, null=True)
+    product = models.ForeignKey(Slider, on_delete=models.CASCADE, related_name='sliders_images')
 
 
 

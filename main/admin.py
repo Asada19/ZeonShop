@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from main.models import News, Image, Slider
+from main.models import News, SliderImage, Slider
 
 class ImageInline(admin.TabularInline):
-    model = Image
+    model = SliderImage
     max_num = 6 
     min_num = 1
     extra = 0

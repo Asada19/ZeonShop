@@ -10,7 +10,6 @@ class ImageInline(admin.TabularInline):
     extra = 0
 
     
-
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ImageInline, ]
     list_display = ('name', 'slug')

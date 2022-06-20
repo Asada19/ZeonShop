@@ -18,6 +18,11 @@ class Collection(models.Model):
     name = models.CharField(max_length=100)
     images = models.ImageField(upload_to='collection_image') 
 
+    def get_absolute_url(self):
+        return f"/collections/{self.id}/"
+
+    
+
     def __str__(self) -> str:
         return self.name
 
@@ -36,13 +41,13 @@ class BuyerList(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=100, verbose_name='Название')
+    name = models.CharField(max_length=100, verbose_name='Название', unique=True)
     articul = models.CharField(max_length=100, verbose_name='Артикул')
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=100)
     description = RichTextField(verbose_name='Описание')
-    price = models.IntegerField(verbose_name='Цена')
-    sales = models.IntegerField(blank=True, default=0, verbose_name='Скидка')
-    final_price = models.IntegerField(verbose_name='Итоговая цена')
+    price = models.PositiveIntegerField(verbose_name='Цена')
+    sales = models.PositiveIntegerField(blank=True, default=0, verbose_name='Скидка')
+    final_price = models.PositiveIntegerField(verbose_name='Итоговая цена')
     size = models.CharField(max_length=100, verbose_name='Размерный ряд в линейке')
     material = models.CharField(max_length=100, verbose_name='Материал')
     composition = models.CharField(max_length=100, verbose_name='Состав')
@@ -50,15 +55,14 @@ class Product(models.Model):
     top_sales = models.BooleanField(verbose_name='Хит продаж')
     new_prod = models.BooleanField(verbose_name='Новинки')
     # category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    stock = models.IntegerField(verbose_name='Количество в линейке')
+    stock = models.PositiveIntegerField(verbose_name='Количество в линейке')
     colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция')
-
     
         
     def save(self, *args, **kwargs):    
 
         """ вариант счета количества товаров с регулярным выражением """
-        numbers = re.split(r'-', self.size)
+        numbers = re.split(r'-', self.size) 
 
         """ вариант счета количества товаров со срезами """
         # numbers = [self.size[:2], self.size[3:]]
@@ -77,9 +81,9 @@ class Cart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     count = models.IntegerField()
     collections = models.ForeignKey(Collection, on_delete=models.CASCADE)
-    price = models.IntegerField()
-    sales = models.IntegerField()
-    final_price = models.IntegerField()
+    price = models.PositiveIntegerField()
+    sales = models.PositiveIntegerField()
+    final_price = models.PositiveIntegerField()
 
 
 class Image(models.Model):
