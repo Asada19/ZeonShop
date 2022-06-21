@@ -1,8 +1,6 @@
-from urllib import response
-from django.shortcuts import get_object_or_404
-from rest_framework import generics
-from main.models import Slider
-from main.serializer import SliderSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import viewsets
 from store.models import Collection, Product
 from .serializers import CollectionSerializer, ProductSerializer, SameProductSerializer
 from rest_framework.pagination import PageNumberPagination
@@ -11,7 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 # Create your views here.
 
 class PaginateProduct(PageNumberPagination):
-    page_size = 3
+    page_size = 4
 
 class PaginateCollections(PageNumberPagination):
     page_size = 8
@@ -19,38 +17,64 @@ class PaginateCollections(PageNumberPagination):
 class DetailCollections(PageNumberPagination):
     page_size = 12
 
-class ProductAPIView(generics.ListAPIView):
+
+class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer 
+    http_method_names = ['get']
     pagination_class = PaginateProduct   
 
 
-class CollectionAPIView(generics.ListAPIView):
+    @action(detail=True)
+    def similars(self, request, pk):
+        """
+        получить похожие продукты
+        """
+        product = self.get_object()
+        collection = Collection.objects.get(id=product.colection.id)
+        result = Product.objects.all().filter(colection_id=collection.id)[:5]
+        serializer = SameProductSerializer(result, many=True)
+        return Response(serializer.data)
+
+
+
+class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
+    http_method_names = ['get']
     pagination_class = PaginateCollections
 
 
-class PerviosAPIVew(generics.ListAPIView):
-    # slider = Slider.objects.all()
-    queryset = Collection.objects.all().order_by()[:4]
-    # prods = Product.objects.all().order_by()[:4]
+    @action(detail=True)
+    def product(self, request, pk):
+        """
+        получить проддукты какой нибудь коллекции
+        """
 
-    serializer_class = CollectionSerializer
+        pagination = PageNumberPagination()
+        pagination.page_size = 12
+        colection = self.get_object()
+        products = Product.objects.all().filter(colection_id=colection.id)
+        result = pagination.paginate_queryset(products, self.request)
+        serializer = SameProductSerializer(result, many=True)
+        return pagination.get_paginated_response(serializer.data)
 
-class CollectionDetailAPIWiew(generics.ListAPIView):
-    queryset = Product.objects.all()
+
+    @action(detail=True)
+    def new_prod(self, request, pk):
+        """
+        получить новинки
+        """
+
+        colection = self.get_object()
+        products = Product.objects.all().filter(colection_id=colection.id).filter(new_prod=True)[:5]
+        serializer = SameProductSerializer(products, many=True)
+        return Response(serializer.data)
 
 
-    def list(self, request, *args, **kwargs):
-        queryset = Product.objects.filter(colection_id=kwargs['pk'])
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return response(serializer.data)
 
-    serializer_class = SameProductSerializer
-    pagination_class = PaginateProduct
+
+
+
+

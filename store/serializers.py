@@ -13,7 +13,7 @@ class ProductSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['images'] = ProductImageSerialiser(instance.images.all(), many=True, context=self.context).data
         representation['colection'] = instance.colection.name
-        return representation
+        return representation   
         
 
 class ProductImageSerialiser(serializers.ModelSerializer):
@@ -25,11 +25,12 @@ class ProductImageSerialiser(serializers.ModelSerializer):
 class SameProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ('id', 'name', 'final_price', 'price', 'sales', 'size', 'favorite', 'images')
+        fields = ('id', 'name', 'final_price', 'price', 'sales', 'size', 'favorite', 'images', 'colection')
 
     def to_representation(self, instance):
         representation =  super().to_representation(instance)
         representation['images'] = ProductImageSerialiser(instance.images.all(), many=True, context=self.context).data
+        
         return representation
 
     

@@ -42,8 +42,8 @@ class BuyerList(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название', unique=True)
+    colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция')
     articul = models.CharField(max_length=100, verbose_name='Артикул')
-    slug = models.SlugField(max_length=100)
     description = RichTextField(verbose_name='Описание')
     price = models.PositiveIntegerField(verbose_name='Цена')
     sales = models.PositiveIntegerField(blank=True, default=0, verbose_name='Скидка')
@@ -56,17 +56,12 @@ class Product(models.Model):
     new_prod = models.BooleanField(verbose_name='Новинки')
     # category = models.ForeignKey(Category, on_delete=models.CASCADE)
     stock = models.PositiveIntegerField(verbose_name='Количество в линейке')
-    colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция')
     
         
     def save(self, *args, **kwargs):    
 
         """ вариант счета количества товаров с регулярным выражением """
         numbers = re.split(r'-', self.size) 
-
-        """ вариант счета количества товаров со срезами """
-        # numbers = [self.size[:2], self.size[3:]]
-
         result = list(range(int(numbers[0]), int(numbers[1]), 2))
         self.final_price = self.price * (100 - self.sales) / 100
         self.stock = len(result) + 1

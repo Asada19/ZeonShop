@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # my_apps
     'rest_framework',
     'colorfield',
-    # 'phonenumber_field',
+    'drf_yasg',    
     'store',
     'main',
     'ckeditor',
@@ -104,6 +104,15 @@ CKEDITOR_CONFIGS = {
             'elementspath'
         ]),
     }
+}
+
+
+SWAGGER_SETTINGS = {
+    'VALIDATOR_URL': 'http://localhost:8001',
+}
+
+REDOC_SETTINGS = {
+   'LAZY_RENDERING': False,
 }
 
 

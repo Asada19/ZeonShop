@@ -12,9 +12,9 @@ class ImageInline(admin.TabularInline):
     
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ImageInline, ]
-    list_display = ('name', 'slug')
-    prepopulated_fields = {'slug': ('name', )}
     readonly_fields=('stock', 'final_price', )
+    fields = ('name', 'colection', 'articul', 'description', 'price', 'sales', 
+                'final_price', 'size', 'stock', 'material', 'composition','favorite', 'new_prod', 'top_sales', )
     
     
 
