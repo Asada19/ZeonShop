@@ -1,15 +1,7 @@
 from django.db import models
-# from phonenumber_field.modelfields import PhoneNumberField
 from ckeditor.fields import RichTextField
-
-
-# Create your models here.
-# class CallBack(models.Model):
-#     name = models.CharField(max_length=254)
-#     # phone = PhoneNumberField()
-#     created_at = models.DateTimeField()
-#     type = models.CharField(max_length=254)
-#     status = models.BooleanField()
+from django.core.validators import FileExtensionValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Slider(models.Model):
@@ -18,8 +10,7 @@ class Slider(models.Model):
 
 class SliderImage(models.Model):
     image = models.ImageField(upload_to='sliders', blank=True, null=True)
-    product = models.ForeignKey(Slider, on_delete=models.CASCADE, related_name='sliders_images')
-
+    slider = models.ForeignKey(Slider, on_delete=models.CASCADE, related_name='sliders_images')
 
 
 class News(models.Model):
@@ -28,7 +19,7 @@ class News(models.Model):
     description = RichTextField(verbose_name='Описание')
 
     class Meta:
-        verbose_name_plural = 'News'
+        verbose_name_plural = 'Новости'
 
     def __str__(self) -> str:
         return self.title
@@ -39,7 +30,7 @@ class AboutUs(models.Model):
     description = RichTextField(verbose_name='Описание')
 
     class Meta:
-        verbose_name_plural = 'About Us'
+        verbose_name_plural = 'О нас'
 
 
     def __str__(self):
@@ -56,7 +47,7 @@ class Offerta(models.Model):
     descriptions = RichTextField(verbose_name='Описание')
 
     class Meta:
-        verbose_name_plural = 'Offerta'
+        verbose_name_plural = 'Публичная оферта'
 
 
     def __str__(self):
@@ -77,3 +68,48 @@ class Question(models.Model):
     help = models.ForeignKey(Help, on_delete=models.CASCADE, related_name='help'
     
     )
+
+
+LIST_CONTACT = (
+    ('Number', 'Number'),
+    ('Mail', 'Mail'),
+    ('Telegram', 'Telegram'),
+    ('WhatsApp', 'WhatsApp'),
+    ('Instagram', 'Instagram'),
+)
+
+
+class Footer(models.Model):
+    info = models.TextField(max_length=200, verbose_name='Информация')
+    header_img = models.ImageField(upload_to='heder', blank=True, verbose_name='Логотип Футера')
+    footer_img = models.ImageField(upload_to='footer', blank=True, verbose_name='Логотип Хедера')
+    header_num = models.CharField(max_length=200, blank=True, verbose_name='Номер в хедере')
+    mail = models.CharField(max_length=50, null=True, blank=True, verbose_name='Почта')
+    instagram = models.CharField(max_length=100, blank=True, verbose_name='Instagram')
+    num = PhoneNumberField(max_length=30, blank=True, verbose_name='Номер')
+    whatsapp = models.CharField(max_length=30, blank=True, verbose_name='WhatsApp')
+    telegram = models.CharField(max_length=30, blank=True, verbose_name='Telegram')
+
+    def save(self, *args, **kwargs):
+        if self.whatsapp and 'http' not in self.whatsapp: 
+            self.whatsapp = f'http://wa.me/{self.whatsapp}/'
+        if self.telegram and 'http' not in self.telegram:     
+            self.telegram = f'https://t.me/{self.telegram}/' 
+        if self.instagram and 'http' not in self.instagram:
+            self.instagram = f'https://www.instagram.com/{self.instagram}/' 
+        if self.mail and 'https' not in self.mail:
+            self.mail = f'https://mail.doodle.com/{self.mail}/' 
+        
+           
+
+        super(Footer, self).save(*args, **kwargs)
+
+
+
+class Advantage(models.Model):
+    image = models.ImageField(upload_to='advantage', blank=True, validators=[FileExtensionValidator(allowed_extensions=['png', 'svg'])])
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.title

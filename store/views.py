@@ -1,15 +1,18 @@
+import random
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework import viewsets
-from store.models import Collection, Product
-from .serializers import CollectionSerializer, ProductSerializer, SameProductSerializer
+from django.db.models import Q
+from rest_framework import viewsets, generics
+from store.forms import CallbackForm
+from store.models import Callback, Collection, Product
+from .serializers import CallbackSerializer, CollectionSerializer, ProductSerializer, SameProductSerializer
 from rest_framework.pagination import PageNumberPagination
 
 
 # Create your views here.
 
 class PaginateProduct(PageNumberPagination):
-    page_size = 4
+    page_size = 8
 
 class PaginateCollections(PageNumberPagination):
     page_size = 8
@@ -38,6 +41,53 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 
+    @action(detail=False, methods=['get'])       # router builds path posts/search/?q=word
+    def search(self, request, pk=None):
+        q = request.query_params.get('q')
+        queryset = self.get_queryset()
+        queryset = queryset.filter(Q(name__icontains=q))                        
+        serializer = SameProductSerializer(queryset, many=True)
+        if not queryset: # если объект поиска не был найден 
+            new_list = Collection.objects.all()
+            if new_list.count() >= 5:
+                collection = random.sample(list(new_list), 5)
+            else:
+                collection = new_list
+            random_collections = []
+            if not queryset or collection:
+                for i in collection:
+                    if i.colection.all():  # проверка - есть ли что то в данной коллекции
+                        random_collections.append({'key': i.colection.all()})
+                random_prod= []
+                for i in random_collections:
+                    random_prod.append(random.choice(list(i['key'])))
+                queryset = random_prod
+                if len(random_prod) > 5:
+                    queryset = random_prod[:5]
+            else:
+                page = self.paginate_queryset(queryset)
+                if page is not None:
+                    serializer = self.get_serializer(page, many=True)
+                    return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True,)
+        return Response(serializer.data)
+
+
+    @action(detail=True, methods=['get'])
+    def favorite(self, request, pk):
+        product = self.get_object()
+        if product.favorite == False:
+            product.favorite = True
+        else:
+            product.favorite = False
+        product.save()
+        serializer = SameProductSerializer(product)
+        return Response(serializer.data)
+
+
+
+
+
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
@@ -54,7 +104,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         pagination = PageNumberPagination()
         pagination.page_size = 12
         colection = self.get_object()
-        products = Product.objects.all().filter(colection_id=colection.id)
+        products = Product.objects.all().filter(colection_id=colection.id) | Product.objects.all().filter(new_prod=True)[:5]
         result = pagination.paginate_queryset(products, self.request)
         serializer = SameProductSerializer(result, many=True)
         return pagination.get_paginated_response(serializer.data)
@@ -71,9 +121,34 @@ class CollectionViewSet(viewsets.ModelViewSet):
         serializer = SameProductSerializer(products, many=True)
         return Response(serializer.data)
 
+class CallbackViewSet(viewsets.ModelViewSet):
+    queryset = Callback.objects.all()
+    serializer_class = CallbackSerializer
+    http_method_names = ['get', 'post']
 
 
-
+class FavoriteViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all().filter(favorite=True)
+    serializer_class = SameProductSerializer
+    pagination_class = DetailCollections
+    http_method_names = ['get']
+     # если объект поиска не был найден 
+    @action(detail=True)
+    def randoms(self, request, pk=None):
+        queryset = Product.objects.all().filter(favorite=True)
+        serializer = SameProductSerializer(queryset, many=True)
+        random_prod = []
+        if not queryset:
+            new_list = Collection.objects.all()
+            collection = random.sample(list(new_list), 5) 
+            random_collections = []
+            for i in collection:
+                    random_collections.append({'key': i.colection.all()})
+            for i in random_collections:
+                random_prod.append(random.choice(list(i['key'])))
+        serializer = self.get_serializer(random_prod[:5], many=True)
+        return Response(serializer.data)
+    
 
 
 

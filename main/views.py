@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from requests import Response
+from rest_framework import viewsets, generics
 
-from main.models import AboutUs, Help, News, Offerta
-from main.serializer import AboutUsSerializer, HelpSerializer, NewsSerializer, OffertaSerializer
+from main.models import AboutUs, Advantage, Footer, Help, News, Offerta, Slider
+from main.serializer import AboutUsSerializer, AdvantageSerializer, FooterSerializer, HelpSerializer, NewsSerializer, OffertaSerializer, SliderSerializer
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -10,6 +11,11 @@ from rest_framework.pagination import PageNumberPagination
 class NewsPaginate(PageNumberPagination):
     page_size = 8
 
+
+class SliderViewSet(viewsets.ModelViewSet):
+    queryset = Slider.objects.all()
+    serializer_class = SliderSerializer
+    http_method_names = ['get']
 
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
@@ -34,4 +40,18 @@ class HelpViewSet(viewsets.ModelViewSet):
     queryset = Help.objects.all()
     serializer_class = HelpSerializer
     http_method_names = ['get']
-    
+
+
+class FooterViewSet(viewsets.ModelViewSet):
+
+    queryset = Footer.objects.all()
+    serializer_class = FooterSerializer
+
+    http_method_names = ['get']
+
+
+class AdvatageViewSet(viewsets.ModelViewSet):
+    queryset = Advantage.objects.all()
+    serializer_class = AdvantageSerializer
+    http_method_names = ['get']
+

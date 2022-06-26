@@ -1,6 +1,6 @@
 from dataclasses import field
 from rest_framework import serializers
-from store.models import Collection, Collection, Image, Product
+from store.models import Callback, Collection, Collection, Image, Product
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,4 +40,8 @@ class CollectionSerializer(serializers.ModelSerializer):
         model = Collection
         fields = '__all__' 
         
-        
+
+class CallbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Callback
+        fields = '__all__'

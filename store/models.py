@@ -1,9 +1,10 @@
 import re
 from django.db import models
 from colorfield.fields import ColorField
-# from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 from ckeditor.fields import RichTextField
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 # Create your models here.
@@ -18,8 +19,8 @@ class Collection(models.Model):
     name = models.CharField(max_length=100)
     images = models.ImageField(upload_to='collection_image') 
 
-    def get_absolute_url(self):
-        return f"/collections/{self.id}/"
+    # def get_absolute_url(self):
+    #     return f"{self.id}/"
 
     
 
@@ -42,7 +43,7 @@ class BuyerList(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название', unique=True)
-    colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция')
+    colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция', related_name='colection')
     articul = models.CharField(max_length=100, verbose_name='Артикул')
     description = RichTextField(verbose_name='Описание')
     price = models.PositiveIntegerField(verbose_name='Цена')
@@ -54,7 +55,6 @@ class Product(models.Model):
     favorite = models.BooleanField(verbose_name='Избранное')
     top_sales = models.BooleanField(verbose_name='Хит продаж')
     new_prod = models.BooleanField(verbose_name='Новинки')
-    # category = models.ForeignKey(Category, on_delete=models.CASCADE)
     stock = models.PositiveIntegerField(verbose_name='Количество в линейке')
     
         
@@ -67,6 +67,9 @@ class Product(models.Model):
         self.stock = len(result) + 1
         super(Product, self).save(*args, **kwargs)
    
+
+    
+
     def __str__(self):
         return self.name
 
@@ -85,3 +88,24 @@ class Image(models.Model):
     image = models.ImageField(upload_to='products', blank=True)
     color = ColorField(default=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images',)
+
+
+class Callback(models.Model):
+    name = models.CharField(max_length=150, unique=False, verbose_name="Имя")
+    phone = PhoneNumberField(null=False, verbose_name="Tелефон")
+    time = models.DateTimeField(auto_now=False, auto_now_add=True, verbose_name="Дата заявки")
+    form = models.CharField(max_length=254, default='Обратный звонок', verbose_name='тип обращения') 
+    called = models.BooleanField(default=False, verbose_name='Перезвонили?')
+        
+    def __str__(self):
+        return self.name
+        
+    class Meta:
+        ordering = ["-id", "-time"]
+        verbose_name = 'Заявка на обратный звонок'
+
+
+
+
+
+
