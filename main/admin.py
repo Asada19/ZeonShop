@@ -73,14 +73,10 @@ class HelpAdmin(admin.ModelAdmin):
 
 
 
-# class FooterData(admin.TabularInline):
-#     model = FooterData
-#     max_num = 5
-#     extra = 0
-
 @admin.register(Footer)
 class FooterAdmin(admin.ModelAdmin):
-    # inlines = [FooterData, ]
+    
+
 
     def has_add_permission(self, request):
         # check if generally has add permissio``n
@@ -90,12 +86,12 @@ class FooterAdmin(admin.ModelAdmin):
             retVal = False
         return retVal
 
-    def image_show(self, obj):
-        if obj.image:
-            return mark_safe("<img src='{}' width='60' />".format(obj.image.url))
-        return None 
+    # def image_show(self, obj):
+    #     if obj.image:
+    #         return mark_safe("<img src='{}' width='60' />".format(obj.image.url))
+    #     return None 
     
-    image_show.__name__ = 'Изображение'
+    # image_show.__name__ = 'Изображение'
 
     def changelist_view(self, request: HttpRequest, extra_context=None):
         return super().changelist_view(request, extra_context=None)

@@ -10,6 +10,14 @@ from rest_framework.pagination import PageNumberPagination
 
 
 # Create your views here.
+"""Глобальная функция рандома"""
+def get_random_objects(massiv, count) -> list :
+    # colect = set(Collection.objects.all())
+    # prods = set(Product.objects.filter(collect='collection'))
+    # some_data = [{colect : prods for collect, prods in }]
+    data = set(massiv.objects.all())
+    res = [random.sample(data, count)][0]
+    return res
 
 class PaginateProduct(PageNumberPagination):
     page_size = 8
@@ -22,13 +30,14 @@ class DetailCollections(PageNumberPagination):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
+    ''' bla bla'''
     queryset = Product.objects.all()
     serializer_class = ProductSerializer 
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     pagination_class = PaginateProduct   
 
 
-    @action(detail=True)
+    @action(detail=True, methods=['get'])
     def similars(self, request, pk):
         """
         получить похожие продукты
@@ -73,7 +82,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['post'])
     def favorite(self, request, pk):
         product = self.get_object()
         if product.favorite == False:
@@ -132,9 +141,8 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = SameProductSerializer
     pagination_class = DetailCollections
     http_method_names = ['get']
-     # если объект поиска не был найден 
-    @action(detail=True)
-    def randoms(self, request, pk=None):
+
+    def list(self, request, *args, **kwargs):
         queryset = Product.objects.all().filter(favorite=True)
         serializer = SameProductSerializer(queryset, many=True)
         random_prod = []
@@ -146,10 +154,12 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                     random_collections.append({'key': i.colection.all()})
             for i in random_collections:
                 random_prod.append(random.choice(list(i['key'])))
-        serializer = self.get_serializer(random_prod[:5], many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+        
+          
     
-
 
 
 

@@ -14,15 +14,10 @@ class ImageInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ImageInline, ]
     readonly_fields=('stock', 'final_price',)
+    list_display = ('name', 'colection', 'final_price', 'size', 'stock', 'favorite', 'new_prod', 'top_sales')
     fields = ('name', 'colection', 'articul', 'description', 'price', 'sales', 
                 'final_price', 'size', 'stock', 'material', 'composition', 'favorite', 'new_prod', 'top_sales',)
     
-    def image_show(self, obj):
-        if obj.image:
-            return mark_safe("<img src='{}' width='60' />".format(obj.image.url))
-        return None 
-    
-    image_show.__name__ = 'Изображение'
 
 @admin.register(Callback)
 class Callback(admin.ModelAdmin):
