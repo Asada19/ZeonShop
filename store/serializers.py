@@ -1,13 +1,12 @@
-from dataclasses import field
 from rest_framework import serializers
-from store.models import Callback, Collection, Collection, Image, Product
+from store.models import Callback, Cart, Collection, Image, Product
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('colection', 'name', 'articul', 'price', 'final_price', 'sales', 
                   'description', 'size', 'composition', 'stock', 'material', 'favorite')
-
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -28,7 +27,7 @@ class SameProductSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'final_price', 'price', 'sales', 'size', 'favorite', 'images', 'colection')
 
     def to_representation(self, instance):
-        representation =  super().to_representation(instance)
+        representation = super().to_representation(instance)
         representation['images'] = ProductImageSerialiser(instance.images.all(), many=True, context=self.context).data
         
         return representation
@@ -47,3 +46,7 @@ class CallbackSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = '__all__'

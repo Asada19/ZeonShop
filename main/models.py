@@ -5,7 +5,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Slider(models.Model):
-    blank = models.URLField(blank=True ,null=True, verbose_name='Поле для ссылки')
+    blank = models.URLField(blank=True, null=True, verbose_name='Поле для ссылки')
 
 
 class SliderImage(models.Model):
@@ -32,7 +32,6 @@ class AboutUs(models.Model):
     class Meta:
         verbose_name_plural = 'О нас'
 
-
     def __str__(self):
         return 'О нас'
     
@@ -49,9 +48,9 @@ class Offerta(models.Model):
     class Meta:
         verbose_name_plural = 'Публичная оферта'
 
-
     def __str__(self):
         return 'Публичная офферта'
+
 
 class Help(models.Model):
     image = models.ImageField(upload_to='Help/')
@@ -62,12 +61,11 @@ class Help(models.Model):
     def __str__(self):
         return 'Help'
 
+
 class Question(models.Model):
     question = models.TextField()
     answer = models.TextField()
-    help = models.ForeignKey(Help, on_delete=models.CASCADE, related_name='help'
-    
-    )
+    help = models.ForeignKey(Help, on_delete=models.CASCADE, related_name='help')
 
 
 LIST_CONTACT = (
@@ -98,16 +96,14 @@ class Footer(models.Model):
         if self.instagram and 'http' not in self.instagram:
             self.instagram = f'https://www.instagram.com/{self.instagram}/' 
         if self.mail and 'https' not in self.mail:
-            self.mail = f'https://mail.doodle.com/{self.mail}/' 
-        
-           
+            self.mail = f'https://mail.doodle.com/{self.mail}/'
 
         super(Footer, self).save(*args, **kwargs)
 
 
-
 class Advantage(models.Model):
-    image = models.ImageField(upload_to='advantage', blank=True, validators=[FileExtensionValidator(allowed_extensions=['png', 'svg'])])
+    image = models.ImageField(upload_to='advantage', blank=True,
+                              validators=[FileExtensionValidator(allowed_extensions=['png', 'svg'])])
     title = models.CharField(max_length=255)
     description = models.TextField()
 

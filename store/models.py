@@ -15,18 +15,17 @@ from django.core.exceptions import ValidationError
 class Collection(models.Model):
     """ Модель колекции """
     name = models.CharField(max_length=100)
-    images = models.ImageField(upload_to='collection_image') 
-    
+    images = models.ImageField(upload_to='collection_image')
 
     def __str__(self) -> str:
         return self.name
 
 
-
 class Product(models.Model):
     """ Модель Продуктов """
     name = models.CharField(max_length=100, verbose_name='Название', unique=True)
-    colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция', related_name='colection')
+    colection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция',
+                                  related_name='colection')
     articul = models.CharField(max_length=100, verbose_name='Артикул')
     description = RichTextField(verbose_name='Описание')
     price = models.PositiveIntegerField(verbose_name='Цена')
@@ -39,19 +38,17 @@ class Product(models.Model):
     top_sales = models.BooleanField(verbose_name='Хит продаж')
     new_prod = models.BooleanField(verbose_name='Новинки')
     stock = models.PositiveIntegerField(verbose_name='Количество в линейке')
-    
-        
+
     def save(self, *args, **kwargs):    
         """ функция рассчета количества товаров на основе регулярных выражений и срезов, формат ввода строго: n-n """
         try:
             numbers = re.split(r'-', self.size) 
             result = list(range(int(numbers[0]), int(numbers[1]), 2))
-        except:
+        except ValidationError:
             raise ValidationError('Need to input data like: n-n')
         self.final_price = self.price * (100 - self.sales) / 100
         self.stock = len(result) + 1
         super(Product, self).save(*args, **kwargs)
-   
 
     def __str__(self):
         return self.name
@@ -80,7 +77,6 @@ class Callback(models.Model):
         verbose_name = 'Заявка на обратный звонок'
 
 
-
 class Cart(models.Model):
     """ Пытаюсь сделать корзину )))"""
     products = models.ForeignKey(Product, verbose_name='товар', on_delete=models.CASCADE)
@@ -95,12 +91,10 @@ class Cart(models.Model):
         return "%s(%d)".format(self.products.name, self.count)
 
 
-
 class BuyerList(models.Model):
     name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField()
-    # phone = PhoneNumberField()
     country = CountryField(blank_label='(select country)')
     city = models.CharField(max_length=100)
     created_at = models.DateTimeField()
