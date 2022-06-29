@@ -17,6 +17,7 @@ class SliderViewSet(viewsets.ModelViewSet):
     serializer_class = SliderSerializer
     http_method_names = ['get']
 
+
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer

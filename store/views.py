@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db.models import Q
 from rest_framework import viewsets, generics
-from store.forms import CallbackForm
-from store.models import Callback, Collection, Product
-from .serializers import CallbackSerializer, CollectionSerializer, ProductSerializer, SameProductSerializer
+# from store.forms import CallbackForm
+from store.models import Callback, Collection, Product, Cart, Order
+from .serializers import CallbackSerializer, CollectionSerializer, ProductSerializer, SameProductSerializer, \
+    CartSerializer, OrderSerializer
 from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
@@ -34,7 +35,7 @@ class DetailCollections(PageNumberPagination):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    ''' bla bla'''
+    """ bla bla """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     http_method_names = ['get', 'post']
@@ -51,7 +52,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = SameProductSerializer(result, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'])  # router builds path posts/search/?q=word
+    @action(detail=True, methods=['get'])  # posts/search/?q=word
     def search(self, request, pk=None):
         q = request.query_params.get('q')
         queryset = self.get_queryset()
@@ -85,7 +86,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def favorite(self, request, pk):
         product = self.get_object()
-        if product.favorite == False:
+        if not product.favorite:
             product.favorite = True
         else:
             product.favorite = False
@@ -105,7 +106,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
         """
         получить проддукты какой нибудь коллекции
         """
-
         pagination = PageNumberPagination()
         pagination.page_size = 12
         colection = self.get_object()
@@ -141,7 +141,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = Product.objects.all().filter(favorite=True)
-        serializer = SameProductSerializer(queryset, many=True)
         random_prod = []
         if not queryset:
             new_list = Collection.objects.all()
@@ -154,3 +153,36 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+
+
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+#
+# class CartItemViewSet(viewsets.ModelViewSet):
+#     queryset = CartItem.objects.all()
+#     serializer_class = CartItemSerializer
+
+
+class NewProdViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all().filter(new_prod=True)
+    serializer_class = SameProductSerializer
+    pagination_class = DetailCollections
+    http_method_names = ['get']
+
+
+class TopSalesViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all().filter(top_sales=True)
+    serializer_class = SameProductSerializer
+    pagination_class = DetailCollections
+    http_method_names = ['get']
+

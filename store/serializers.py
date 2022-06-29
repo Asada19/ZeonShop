@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from store.models import Callback, Cart, Collection, Image, Product
+from store.models import Callback, Cart, Collection, Image, Product, Order
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -34,7 +34,6 @@ class SameProductSerializer(serializers.ModelSerializer):
 
     
 class CollectionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Collection
         fields = '__all__' 
@@ -50,3 +49,18 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+# class CartItemSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CartItem
+#         fields = '__all__'
+
+
+

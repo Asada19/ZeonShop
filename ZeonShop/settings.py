@@ -153,10 +153,10 @@ WSGI_APPLICATION = 'ZeonShop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'zeon',
+        'NAME': 'zeonshop',
         'USER': 'rahat', 
         'PASSWORD': '1',
-        'PORT' : 5432
+        'PORT': 5432
     }
 }
 
