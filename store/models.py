@@ -96,39 +96,39 @@ class Order(models.Model):
                               max_length=255,
                               db_index=True,
                               default=('Новый', 'Новый'), verbose_name='Выбор из списка')
-    # Order info
+    # # Order info
     # sum = models.IntegerField(null=True, blank=True, default=0, verbose_name='Количество линеек')
     # sum_quantity = models.IntegerField(null=True, blank=True, default=0, verbose_name='Количество всех товаров в '
     #                                                                                   'линейках')
     # price = models.IntegerField(null=True, blank=True, default=0, verbose_name='Общая цена до учета скидок')
     # discounts = models.IntegerField(null=True, blank=True, default=0, verbose_name='Сумма всех скидок')
     # total = models.IntegerField(null=True, blank=True, default=0, verbose_name='Итого к оплате')
-    # cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-
-    # def save(self,  *args, **kwargs):
-    #     self.sum_quantity = Product.stock
-    #     self.price = Product.price
-    #     self.discounts = Product.sales
-    #     self.total = Product.final_price
-    #     super().save(*args, **kwargs)
+    # cart = models.ForeignKey(CartItem, on_delete=models.CASCADE)
+        #
+        # def save(self,  *args, **kwargs):
+        #     self.sum_quantity = Product.stock
+        #     self.price = Product.price
+        #     self.discounts = Product.sales
+        #     self.total = Product.final_price
+        #     super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.name)
 
 
 # Оформление заказа
-# class CartItem(models.Model):
-#     cart = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart', blank=True)
-#     quantity = models.PositiveIntegerField(null=True, blank=True, default=1)
-#     user = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, related_name='user', blank=True)
-#     total = models.IntegerField(null=True, blank=True, default=0, verbose_name='Итого к оплате')
-#
-#     def save(self, *args, **kwargs):
-#         self.total = self.cart.final_price
-#         super().save(*args, **kwargs)
-#
-#     def __str__(self):
-#         return str(self.user)
+class CartItem(models.Model):
+    cart = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart', blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True, default=1)
+    user = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, related_name='user', blank=True)
+    total = models.IntegerField(null=True, blank=True, default=0, verbose_name='Итого к оплате')
+
+    def save(self, *args, **kwargs):
+        self.total = self.cart.final_price
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.user)
 
 
 class Cart(models.Model):
@@ -140,7 +140,7 @@ class Cart(models.Model):
     final_price = models.IntegerField(default=True, null=True, blank=True, verbose_name='Итого')
     image = Product.images
     name = models.CharField(max_length=200, blank=True, null=True, editable=False, verbose_name='Название товара')
-    cart = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='cart', blank=True)
+    # cart = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='cart', blank=True)
 
     def save(self, *args, **kwargs):
         self.price = self.product.price

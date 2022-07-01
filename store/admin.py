@@ -1,6 +1,5 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
-from store.models import Callback, Collection, Image, Product, Cart, Order
+from store.models import Callback, Collection, Image, Product, Cart, Order, CartItem
 
 
 class ImageInline(admin.TabularInline):
@@ -26,15 +25,15 @@ class Callback(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         # check if generally has add permissio``n
-        obj = super().has_add_permission(request)
+        obj1 = super().has_add_permission(request)
         # set add permission to False, if object already exists
-        if obj:
-            obj = False
-        return obj
+        if obj1:
+            onj1 = False
+        return obj1
 
 
 class DetailInline(admin.TabularInline):
-    model = Cart
+    model = CartItem
     extra = 0
     # readonly_fields = ('price', 'quantity', 'sum', 'sum_quantity', 'discounts', 'total', )
 
@@ -47,5 +46,5 @@ class Order(admin.ModelAdmin):
 
 admin.site.register(Collection)
 # admin.site.register(Cart)
-# admin.site.register(CartItem)
+admin.site.register(CartItem)
 # admin.site.register(Order)

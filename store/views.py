@@ -4,9 +4,9 @@ from rest_framework.decorators import action
 from django.db.models import Q
 from rest_framework import viewsets, generics
 # from store.forms import CallbackForm
-from store.models import Callback, Collection, Product, Cart, Order
+from store.models import Callback, Collection, Product, Cart, Order, CartItem
 from .serializers import CallbackSerializer, CollectionSerializer, ProductSerializer, SameProductSerializer, \
-    CartSerializer, OrderSerializer
+    CartSerializer, OrderSerializer, CartItemSerializer
 from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
@@ -155,24 +155,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class CartViewSet(viewsets.ModelViewSet):
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-
-class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-
-#
-# class CartItemViewSet(viewsets.ModelViewSet):
-#     queryset = CartItem.objects.all()
-#     serializer_class = CartItemSerializer
-
-
 class NewProdViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().filter(new_prod=True)
     serializer_class = SameProductSerializer
@@ -185,4 +167,28 @@ class TopSalesViewSet(viewsets.ModelViewSet):
     serializer_class = SameProductSerializer
     pagination_class = DetailCollections
     http_method_names = ['get']
+
+
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+    @action(detail=True)
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class CartItemViewSet(viewsets.ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.queryset.filter(cart=user)
+        return queryset
 
